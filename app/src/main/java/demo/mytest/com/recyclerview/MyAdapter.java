@@ -16,7 +16,15 @@ import java.util.List;
  */
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+    //上拉状态0：上拉加载更多
+    public static final int PULLUP_LOAD_MORE = 0;
     private List<Boolean> isClicks;
+    private static final int TYPE_FOOTER = 0;//带Footer的Item
+    private static final int TYPE_NORMAL = 1;//不带Footer的Item
+    //上拉加载状态，默认为状态0-上拉加载更多
+    private int load_more_status = 0;
+    //上拉状态1：正在加载中
+    public static final int LOADING_MORE = 1;
     //...
     //定义接口 OnItemClickListener
     public interface OnItemClickListener {
@@ -53,6 +61,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
 
     }
+    //根据Item位置返回viewType，供onCreateViewHolder方法内获取不同的Holder
+    @Override
+    public int getItemViewType(int position) {
+        if (position == getItemCount() - 1) {
+            return TYPE_FOOTER;
+        } else {
+            return TYPE_NORMAL;
+        }
+    }
+
+
 
     @NonNull
     @Override
@@ -107,7 +126,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
 
 
-
+    //头部添加Item，供上拉刷新时调用
+    public void addItem(List<String> list){
+        list.addAll(mList);
+        mList.clear();
+        mList.addAll(list);
+        notifyDataSetChanged();
+    }
+    //改变当前上拉状态
+    public void changeMoreStatus(int status){
+        load_more_status= status;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getItemCount() {
@@ -121,6 +151,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public void removeData(int position) {
         mList.remove(position);
         notifyItemRemoved(position);
+    }
+    //末尾添加Item，供上拉加载更多时调用
+    public void addMoreItem(List<String> list){
+        mList.addAll(list);
+        notifyDataSetChanged();
     }
 
 
